@@ -108,8 +108,18 @@ class ServicesHealthCommands(object):
         filepath="docker-services.yml",
         max_retries=6,
         verbose=False,
+        # do we need the defaults here? The call is used only once
+        # and the defaults are already set in the CLIConfig.
         search_host="localhost",
         search_port="9200",
+        db_host="localhost",
+        db_port="5432",
+        redis_host="localhost",
+        redis_port="6379",
+        rabbitmq_host="localhost",
+        rabbitmq_port="5672",
+        s3_host="localhost",
+        s3_port="9000",
     ):
         """Wait for the given service to be up."""
         if service not in HEALTHCHECKS:
@@ -132,6 +142,14 @@ class ServicesHealthCommands(object):
                 project_shortname=project_shortname,
                 search_host=search_host,
                 search_port=search_port,
+                db_host=db_host,
+                db_port=db_port,
+                redis_host=redis_host,
+                redis_port=redis_port,
+                rabbitmq_host=rabbitmq_host,
+                rabbitmq_port=rabbitmq_port,
+                s3_host=s3_host,
+                s3_port=s3_port,
             )
             ready = response.status_code == 0
 

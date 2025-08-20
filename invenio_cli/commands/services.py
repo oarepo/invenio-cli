@@ -32,6 +32,16 @@ class ServicesCommands(Commands):
             cli_config.get_project_shortname(), local=True
         )
 
+    def prepare_env_file(self):
+        """Return the steps to link environment variables."""
+        steps = [
+            FunctionStep(
+                func=self.docker_helper.prepare_env_file,
+                message="Linking environment variables so that docker can use them ...",
+            )
+        ]
+        return steps
+
     def ensure_containers_running(self):
         """Ensures containers are running."""
         project_shortname = self.cli_config.get_project_shortname()
@@ -50,8 +60,17 @@ class ServicesCommands(Commands):
                 service,
                 project_shortname=project_shortname,
                 print_func=lambda msg: click.secho(msg, fg="yellow"),
+                filepath=self.docker_helper.docker_compose_file,
                 search_host=self.cli_config.get_search_host(),
                 search_port=self.cli_config.get_search_port(),
+                db_host=self.cli_config.get_db_host(),
+                db_port=self.cli_config.get_db_port(),
+                redis_host=self.cli_config.get_redis_host(),
+                redis_port=self.cli_config.get_redis_port(),
+                rabbitmq_host=self.cli_config.get_rabbitmq_host(),
+                rabbitmq_port=self.cli_config.get_rabbitmq_port(),
+                s3_host=self.cli_config.get_s3_host(),
+                s3_port=self.cli_config.get_s3_port(),
             )
 
             if not ready:
@@ -323,6 +342,8 @@ class ServicesCommands(Commands):
         has been executed before.
         """
         steps = []
+
+        steps.extend(self.prepare_env_file())
 
         if services:
             steps.append(

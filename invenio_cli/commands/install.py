@@ -97,4 +97,4 @@ class InstallCommands(LocalCommands):
         steps = self.install_py_dependencies(pre=pre, dev=dev)
         steps.extend(self.symlink())
         steps.extend(self.install_assets(flask_env))
-        return steps
+        return extend_steps("install", steps)
