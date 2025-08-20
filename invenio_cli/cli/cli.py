@@ -11,6 +11,7 @@
 """Invenio module to ease the creation and management of applications."""
 
 import os
+from importlib import metadata as importlib_metadata
 from pathlib import Path
 
 import click
@@ -317,3 +318,8 @@ def upgrade(cli_config, script):
     on_success = "Upgrade sucessfull."
 
     run_steps(steps, on_fail, on_success)
+
+
+# register extra commands to the invenio-cli group
+for ep in importlib_metadata.entry_points(group="invenio_cli.extensions.commands"):
+    ep.load()(invenio_cli)
