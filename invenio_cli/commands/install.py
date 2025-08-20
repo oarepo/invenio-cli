@@ -9,6 +9,7 @@
 """Invenio module to ease the creation and management of applications."""
 
 from ..helpers import filesystem
+from ..helpers.extensions import extend_steps
 from ..helpers.process import run_cmd
 from .local import LocalCommands
 from .packages import PackagesCommands
@@ -96,4 +97,4 @@ class InstallCommands(LocalCommands):
         steps = self.install_py_dependencies(pre=pre, dev=dev)
         steps.extend(self.symlink())
         steps.extend(self.install_assets(flask_env))
-        return extend_steps("install", steps)
+        return extend_steps("install", self.cli_config, steps)
