@@ -161,6 +161,40 @@ class CLIConfig(object):
             "localhost",
         )
 
+    def get_db_port(self):
+        """Returns the database port."""
+        return self.private_config[CLIConfig.CLI_SECTION].get("db_port", "5432")
+
+    def get_db_host(self):
+        """Returns the database host."""
+        return self.private_config[CLIConfig.CLI_SECTION].get("db_host", "localhost")
+
+    def get_redis_port(self):
+        """Returns the redis port."""
+        return self.private_config[CLIConfig.CLI_SECTION].get("redis_port", "6379")
+
+    def get_redis_host(self):
+        """Returns the redis host."""
+        return self.private_config[CLIConfig.CLI_SECTION].get("redis_host", "localhost")
+
+    def get_rabbitmq_port(self):
+        """Returns the RabbitMQ port."""
+        return self.private_config[CLIConfig.CLI_SECTION].get("rabbitmq_port", "5672")
+
+    def get_rabbitmq_host(self):
+        """Returns the RabbitMQ host."""
+        return self.private_config[CLIConfig.CLI_SECTION].get(
+            "rabbitmq_host", "localhost"
+        )
+
+    def get_s3_port(self):
+        """Returns the S3 port."""
+        return self.private_config[CLIConfig.CLI_SECTION].get("s3_port", "9000")
+
+    def get_s3_host(self):
+        """Returns the S3 host."""
+        return self.private_config[CLIConfig.CLI_SECTION].get("s3_host", "localhost")
+
     def get_web_port(self):
         """Returns web port."""
         return self.private_config[CLIConfig.CLI_SECTION].get("web_port", "5000")
