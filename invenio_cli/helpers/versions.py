@@ -64,7 +64,15 @@ def rdm_version():
         return _from_pipfile("invenio-app-rdm")
 
     elif os.path.isfile("./pyproject.toml"):
-        return _from_pyproject_toml("invenio-app-rdm")
+        # try invenio-app-rdm first
+        version = _from_pyproject_toml("invenio-app-rdm")
+        if version:
+            return version
+
+        # fallback to oarepo
+        version = _from_pyproject_toml("oarepo")
+        if version:
+            return version
 
     else:
         raise FileNotFoundError("Found neither 'Pipfile' nor 'pyproject.toml'")
