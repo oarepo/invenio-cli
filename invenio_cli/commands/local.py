@@ -163,14 +163,19 @@ class LocalCommands(Commands):
         run_env = environ.copy()
         run_env["FLASK_DEBUG"] = "1" if debug else "0"
         pkg_man = self.cli_config.python_package_manager
+
+        # cesnet extension: use custom cert location if set
+        cert_path = run_env.get("INVENIO_SITE_CERT_PATH", "docker/nginx/test.crt")
+        key_path = run_env.get("INVENIO_SITE_KEY_PATH", "docker/nginx/test.key")
+
         proc = popen(
             pkg_man.run_command(
                 "invenio",
                 "run",
                 "--cert",
-                "docker/nginx/test.crt",
+                cert_path,
                 "--key",
-                "docker/nginx/test.key",
+                key_path,
                 "--host",
                 host,
                 "--port",
