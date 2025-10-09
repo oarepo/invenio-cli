@@ -125,6 +125,10 @@ class UV(PythonPackageManager):
     name = "uv"
     lock_file_name = "uv.lock"
 
+    def __init__(self):
+        """Initialize the UV package manager with the project path."""
+        self.venv_path = os.environ.get("UV_PROJECT_ENVIRONMENT", ".venv")
+
     def run_command(self, *command):
         """Generate command to run the given command in the managed environment."""
         # "--no-sync" is used to not override locally installed editable packages
@@ -169,7 +173,7 @@ class UV(PythonPackageManager):
     def remove_venv(self):
         """Remove the created virtualenv."""
         # This assumes the default location for the uv venv
-        return ["rm", "-r", ".venv"]
+        return ["rm", "-r", self.venv_path]
 
     def start_activated_subshell(self) -> List[str]:
         """Remove the created virtualenv."""
@@ -177,7 +181,7 @@ class UV(PythonPackageManager):
         # Since Invenio doesn't support Windows that should be given
         # Also, it has a good chance of not properly setting a PS1...
         shell = os.getenv("SHELL")
-        return [shell, "-c", f"source .venv/bin/activate; exec {shell} -i"]
+        return [shell, "-c", f"source {self.venv_path}/bin/activate; exec {shell} -i"]
 
 
 @dataclass
