@@ -170,3 +170,37 @@ class DockerHelper(object):
                 output="Web UI container not found. Is it up and running?",
                 status_code=1,
             )
+
+
+class NoOpDockerHelper:
+    """A no-op implementation of DockerHelper that does nothing.
+
+    It is used when services can not be started with docker (e.g. in CI/CD environments)
+    and has the same interface as DockerHelper.
+    """
+
+    def build_images(self, pull=False, cache=True):
+        raise NotImplementedError("Build images is not implemented in NoOpDockerHelper")
+
+    def prepare_env_file(self):
+        return namedtuple("OkResponse", ["output", "error", "warning", "status_code"])(
+            output="Environment variables linked successfully.",
+            error=None,
+            warning=None,
+            status_code=0,
+        )
+
+    def start_containers(self, app_only=False):
+        """Start containers according to the specified environment.
+
+        :param app_only: Boot up only ui and api containers.
+        """
+        return ProcessResponse()
+
+    def stop_containers(self):
+        """Stop currently running containers."""
+        return ProcessResponse()
+
+    def destroy_containers(self):
+        """Stop and remove all containers, volumes and images."""
+        return ProcessResponse()
