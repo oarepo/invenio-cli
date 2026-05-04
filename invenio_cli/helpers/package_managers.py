@@ -196,6 +196,7 @@ class JavascriptPackageManager(ABC):
     """Interface for creating tool-specific JS package management commands."""
 
     name = None
+    lock_file_name = None
 
     def create_pynpm_package(self, package_json_path: Union[Path, str]) -> NPMPackage:
         """Create a variant of ``NPMPackage`` with the path to ``package.json``."""
@@ -213,11 +214,16 @@ class JavascriptPackageManager(ABC):
         """Generate steps to link the target package to the project."""
         raise NotImplementedError()
 
+    def lock_dependencies(self) -> List[str]:
+        """Update the lock file."""
+        raise NotImplementedError()
+
 
 class NPM(JavascriptPackageManager):
     """Generate ``npm`` commands for managing JS packages."""
 
     name = "npm"
+    lock_file_name = "package-lock.json"
 
     def create_pynpm_package(self, package_json_path):
         """Create an ``NPMPackage`` with the path to ``package.json``."""
@@ -226,6 +232,10 @@ class NPM(JavascriptPackageManager):
     def install_local_package(self, path):
         """Install the local JS package."""
         return ["--prefix", str(path)]
+
+    def lock_dependencies(self):
+        """Lock the JS package."""
+        return ["--package-lock-only", "--ignore-scripts"]
 
     def env_overrides(self):
         """Provide environment overrides for building Invenio assets."""
@@ -282,6 +292,7 @@ class PNPM(JavascriptPackageManager):
     """Generate ``pnpm`` commands for managing JS packages."""
 
     name = "pnpm"
+    lock_file_name = "pnpm-lock.yaml"
 
     def create_pynpm_package(self, package_json_path):
         """Create a ``PNPMPackage`` with the path to ``package.json``."""
@@ -290,6 +301,10 @@ class PNPM(JavascriptPackageManager):
     def install_local_package(self, path):
         """Install the local JS package."""
         return ["-C", str(path)]
+
+    def lock_dependencies(self):
+        """Lock the JS package."""
+        return ["--lockfile-only"]
 
     def env_overrides(self):
         """Provide environment overrides for building Invenio assets."""
