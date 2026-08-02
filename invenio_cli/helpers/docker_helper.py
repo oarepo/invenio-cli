@@ -7,6 +7,8 @@
 """Invenio CLI Docker Compose class."""
 
 import re
+from collections import namedtuple
+from pathlib import Path
 
 import docker
 
@@ -56,6 +58,37 @@ class DockerHelper(object):
             else None
         )
 
+    @property
+    def docker_compose_file(self):
+        """Return the base docker command."""
+        docker_file = (
+            "docker-compose.full.yml" if not self.local else "docker-compose.yml"
+        )
+        for location in (
+            Path(docker_file),
+            Path("docker") / docker_file,
+        ):
+            if location.exists():
+                return str(location)
+        raise FileNotFoundError(
+            f"Could not find docker-compose file: {docker_file}. "
+            "Please ensure it exists in the current directory or in the 'docker' subdirectory."
+        )
+
+    def prepare_env_file(self):
+        """Link environment variables to the docker-compose file."""
+        env_file = Path(self.docker_compose_file).parent / ".env"
+        if not env_file.exists():
+            variables = Path("variables").resolve()
+            env_file.symlink_to(variables)
+
+        return namedtuple("OkResponse", ["output", "error", "warning", "status_code"])(
+            output="Environment variables linked successfully.",
+            error=None,
+            warning=None,
+            status_code=0,
+        )
+
     def build_images(self, pull=False, cache=True):
         """Build images.
 
@@ -64,7 +97,7 @@ class DockerHelper(object):
         """
         command = self.docker_compose + [
             "--file",
-            "docker-compose.full.yml",
+            self.docker_compose_file,
             "build",
         ]
         if pull:
@@ -82,7 +115,7 @@ class DockerHelper(object):
         """
         command = self.docker_compose + [
             "--file",
-            "docker-compose.yml" if self.local else "docker-compose.full.yml",
+            self.docker_compose_file,
             "up",
             "-d",  # --detach not supported in 1.17.0
         ]
@@ -96,7 +129,7 @@ class DockerHelper(object):
         """Stop currently running containers."""
         command = self.docker_compose + [
             "--file",
-            "docker-compose.yml" if self.local else "docker-compose.full.yml",
+            self.docker_compose_file,
             "stop",
         ]
         return run_cmd(command)
@@ -105,7 +138,7 @@ class DockerHelper(object):
         """Stop and remove all containers, volumes and images."""
         command = self.docker_compose + [
             "--file",
-            "docker-compose.yml" if self.local else "docker-compose.full.yml",
+            self.docker_compose_file,
             "down",
             "--volumes",
         ]
@@ -144,6 +177,15 @@ class NoOpDockerHelper:
     def build_images(self, pull=False, cache=True):
         """Build images action. Not implemented in NoOpDockerHelper."""
         raise NotImplementedError("Build images is not implemented in NoOpDockerHelper")
+
+    def prepare_env_file(self):
+        """Link environment variables to the docker-compose file."""
+        return namedtuple("OkResponse", ["output", "error", "warning", "status_code"])(
+            output="Environment variables linked successfully.",
+            error=None,
+            warning=None,
+            status_code=0,
+        )
 
     def start_containers(self, app_only=False):
         """Start containers according to the specified environment.

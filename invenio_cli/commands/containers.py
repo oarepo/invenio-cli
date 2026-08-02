@@ -264,6 +264,7 @@ class ContainersCommands(ServicesCommands):
         :param stop: Stop services after setup.
         """
         steps = []
+        steps.extend(self.prepare_env_file())
 
         if services:
             steps.append(
@@ -314,6 +315,8 @@ class ContainersCommands(ServicesCommands):
 
         if build:
             steps.extend(self.build())
+
+        steps.extend(self.prepare_env_file())
 
         if services and setup:
             # NOTE: Setup will boot up all service and not bring down
